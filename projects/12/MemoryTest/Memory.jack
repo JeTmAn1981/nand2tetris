@@ -1,0 +1,128 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * Memory operations library.
+ */ 
+class Memory {
+	static Array memory, freelist;
+	static int SIZE, NEXTBLOCK;
+	static Array freelist;
+	
+    /** Initializes memory parameters. */
+    function void init() {
+	let memory = 0;
+	let SIZE = 0;
+	let NEXTBLOCK = 1;
+
+	let freelist = 2048;
+	let freelist[SIZE] = 16384;
+	let freelist[NEXTBLOCK] = null;
+	
+	return;
+	}
+
+    /** finds and allocates from the heap a memory block of the 
+     *  specified size and returns a reference to its base address. */
+    function int alloc(int size) {
+    var Array currentblock, previousblock, newblock;
+	
+	if (freelist = null)
+	{
+		do Sys.error(6);
+	}
+	
+	let currentblock = freelist;
+	
+	while (~(currentblock[SIZE] > size))
+	{
+		if (currentblock[NEXTBLOCK] = null)
+		{
+			do Sys.error(6);
+		}
+		
+		let previousblock = currentblock;
+		let currentblock = currentblock[NEXTBLOCK];
+	}
+
+	if (~(currentblock[SIZE] = size + 1))
+	{
+		let newblock = currentblock + size + 1;
+		let newblock[SIZE] = currentblock[SIZE] - (size + 1);
+		let newblock[NEXTBLOCK] = currentblock[NEXTBLOCK];
+		
+		let currentblock[NEXTBLOCK] = newblock;
+	}
+	
+	if (currentblock = freelist)
+		{
+			if (freelist[NEXTBLOCK] = null)
+			{
+				let freelist = null;
+			}
+			else
+			{
+				let freelist = freelist[NEXTBLOCK];
+			}
+		}
+	else
+		{
+			let previousblock[NEXTBLOCK] = newblock;
+		}	
+	
+	let currentblock[SIZE] = size;
+	
+	return currentblock + 1;
+	}
+
+    /** De-allocates the given object and frees its space. */
+    function void deAlloc(int object) {
+	var Array freedblock, currentblock;
+	var int counter;
+	
+	let freedblock = object - 1;
+	
+	let counter = 1;
+		
+	while (counter < freedblock[SIZE])
+	{
+		let freedblock[counter] = 0;
+		let counter = counter + 1;
+	}
+	
+	if (freelist = null)
+	{
+		let freelist = freedblock;
+	}
+    else
+	{
+		let currentblock = freelist;
+		
+		while (~(currentblock[NEXTBLOCK] = null)) 
+		{
+			let currentblock = currentblock[NEXTBLOCK];
+		}
+
+		let freedblock[NEXTBLOCK] = null;
+		let currentblock[NEXTBLOCK] = freedblock;
+	}
+	
+	return;
+	}    
+	
+	
+    /** Returns the value of the main memory at the given address. */
+    function int peek(int address) {
+    return memory[address];
+	}
+
+    /** Sets the value of the main memory at this address
+     *  to the given value. */
+    function void poke(int address, int value) {
+	let memory[address] = value;
+	return;
+    }
+
+}

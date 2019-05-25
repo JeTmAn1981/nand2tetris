@@ -1,0 +1,6 @@
+c:\HackAssembler\bin\Debug\HackAssembler.exe.config
+c:\HackAssembler\bin\Debug\HackAssembler.exe
+c:\HackAssembler\bin\Debug\HackAssembler.pdb
+c:\HackAssembler\obj\Debug\HackAssembler.csprojResolveAssemblyReference.cache
+c:\HackAssembler\obj\Debug\HackAssembler.exe
+c:\HackAssembler\obj\Debug\HackAssembler.pdb

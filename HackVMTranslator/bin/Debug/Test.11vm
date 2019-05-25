@@ -1,0 +1,12 @@
+function Sys.init 0
+push constant 1
+push constant 1
+call AddTest 2   // Compute the 4'th fibonacci element
+label WHILE
+goto WHILE              // Loop infinitely
+
+function AddTest 0
+push argument 0
+push argument 1
+add
+return

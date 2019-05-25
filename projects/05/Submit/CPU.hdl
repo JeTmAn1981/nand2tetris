@@ -1,0 +1,118 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    
+	// Put your code here:
+	
+	//If it's an A instruction, or if it's a C instruction with the correct destination bit set, allow writing to the A register
+	Not(in = instruction[15], out = AInstruction);
+	And(a = instruction[5], b = instruction[15], out = CInstructionWriteARegister);
+	Or(a = AInstruction, b = CInstructionWriteARegister, out = WriteARegister);
+
+	//If it's a C instruction and the correct destination bit is set, allow writing to the D register
+	And(a = instruction[4], b = instruction[15], out = WriteDRegister);
+	
+	//If it's a C instruction and the correct destination bit is set, allow writing to Memory[A]
+	And(a = instruction[3], b = instruction[15], out = writeM);
+	
+	//If it's an A instruction, the value to be written to the A register is the first 15 bits of the instruction.
+	//Otherwise if it's a C instruction, the value to be written to the A register (if writing is allowed)
+	//should be the output produced by the ALU operation.
+	Mux16(a = instruction, b = ALUARegisterInput, sel=instruction[15], out = ARegisterInput);
+	
+	//Using previously determined conditions, where applicable write the input prepared to the A register.  Either way,
+	//output the contents of the A register for use in other areas (memory access, etc.)
+	ARegister(in = ARegisterInput, load = WriteARegister, out = AOutput, out[0..14] = addressM);
+	
+	//DRegisterInput is always the output of the ALU, but this value will only be written to the D register
+	//if specified.  Either way, output the value of the D register for use elsewhere.
+	DRegister(in = DRegisterInput, load = WriteDRegister, out = ALUDInput);
+	
+	//Use either the current value of the A register for one of the ALU's inputs, or use
+	//the previously provided value from the memory banks, access by the most recent A register's value used as an address.
+	Mux16(a = AOutput, b = inM, sel = instruction[12], out = ALUAInput);
+	
+	//Process the ALU operation with the provided inputs (A and D registers, with some alteration possible)
+	//and the six control bits provided by the instruction.  If it's an A instruction it should be ok for control bits to affected
+	//ALU output since the write bits for the registers will not be set, or at least I think this is ok.
+	//Several outputs are produced for connecting to other processes.
+	ALU(x = ALUDInput, y = ALUAInput, zx = instruction[11], nx = instruction[10], zy = instruction[9], ny = instruction[8], f = instruction[7], no = instruction[6], out = outM, out=DRegisterInput, out=ALUARegisterInput, out = ALUOutput, out[15] = ALUNegative, out[0..7] = ALUFirstHalf, out[8..15] = ALUSecondHalf);
+	
+	//Check jump conditions
+	//ALU out [15] = 1, ALU is less than zero
+	//ALU out [15] = 0, ALU is greater than or equal to zero
+	
+	//If the MSB is a zero, then the ALU output is not negative (two's complement negatives all start with 1).
+	Not(in = ALUNegative, out = ALUNotNegative);
+	
+	//Check both halves of the 16-bit value for the presence of any 1's, then compare the results to 
+	//find out the result for the whole number.  If there are any 1's, the value is not zero.
+	//Otherwise, the value is zero.
+	Or8Way(in = ALUFirstHalf, out = FirstHalfALUNotZero);
+	Or8Way(in = ALUSecondHalf, out = SecondHalfALUNotZero);
+	Or(a = FirstHalfALUNotZero, b = SecondHalfALUNotZero, out = ALUNotZero);
+	Not(in = ALUNotZero, out = ALUEqualsZero);
+	
+	//If the value isn't zero, and it's not negative, then it has to be greater than zero.
+	And(a = ALUNotZero, b = ALUNotNegative, out = ALUGreaterThanZero);
+	
+	//If the value is zero or the value is negative, than the value is less than or equal to zero.
+	Or(a = ALUEqualsZero, b = ALUNegative, out = ALULessThanEqualToZero);
+	
+	//Have to create 8-way mux?
+	//Use the jump bits from the instruction to select the appropriate condition to check.  Whether or not all these conditions
+	//have actually passed has already been checked, so you just need to select the value corresponding to the submitted
+	//sequence of jump bits.  Exceptions are first and last options which have no conditions.
+	Mux8Way(a = false, b = ALUGreaterThanZero, c = ALUEqualsZero, d = ALUNotNegative, e = ALUNegative,  f = ALUNotZero, g = ALULessThanEqualToZero, h = true, sel = instruction[0..2], out = LoadPC);
+	
+	//Whenever you're loading a new value, you don't want to increment (though loading takes precedence) and vice versa,
+	//so set the increment value to the opposite of whatever the selected loading value is.  Exceptions are the first and last options
+	//which always increment and jump, respectively.
+	Mux8Way(a = true,  b = ALULessThanEqualToZero, c = ALUNotZero, d = ALUNegative, e = ALUNotNegative, f = ALUEqualsZero, g = ALUGreaterThanZero, h = false, sel = instruction[0..2], out = IncrementPC);
+	
+	//Still need to do comparisons to MSB of instruction to make sure only loading if is compute instruction?
+	Mux(a = false, b = LoadPC, sel=instruction[15], out = AllowLoadPC);
+	Mux(a = true, b = IncrementPC, sel=instruction[15], out = AllowIncrementPC);
+	
+		//Takes as input the contents of the A register which is used to store locations for jumps.
+	//Load and increment conditions have already been determined, as has reset.
+	PC(in = AOutput, load = AllowLoadPC, inc = AllowIncrementPC, reset = reset, out[0..14] = pc);
+}

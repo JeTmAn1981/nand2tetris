@@ -1,0 +1,237 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/09/Tetris/Tetrimino.jack
+
+/**
+ * Implements a graphic Tetrimino. A graphic Tetrimino has a screen location
+ * and a size. It also has methods for drawing, erasing, moving on the 
+ * screen, and changing its size.
+ */
+class Tetrimino {
+
+    // Location on the screen
+    field int x, y, tetriminoHeight, tetriminoWidth;
+
+    // The size of the Tetrimino
+    field int size,numberStates,currentStateIndex;
+	field Array StatesCollection;
+	
+    /** Constructs a new Tetrimino with a given location and size. */
+    constructor Tetrimino new(int Ax, int Ay, int Asize) {
+        let x = Ax;
+        let y = Ay;
+        let size = Asize;
+		let tetriminoHeight = size * 2;
+		let tetriminoWidth = size * 3;
+		let numberStates = 4;
+		let currentStateIndex = 0; 	
+		
+		do ConstructStates();
+        do draw();
+
+        return this;
+    }
+	
+	method void ConstructStates()
+	{
+		var Array StateRowsCollection,TempArray,TempArray2;
+		var int counter;
+		let StatesCollection = Array.new(numberStates);
+		
+		let StateRowsCollection = Array.new(4);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,0,1,0,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,1,1,1,1,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,2,0,0,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,3,0,0,0,0);
+		let StatesCollection[0] = StateRowsCollection;
+	  
+		let StateRowsCollection = Array.new(4);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,0,1,1,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,1,1,0,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,2,1,0,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,3,0,0,0,0);
+		let StatesCollection[1] = StateRowsCollection;
+	  
+		let StateRowsCollection = Array.new(4);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,0,1,1,1,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,1,0,0,1,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,2,0,0,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,3,0,0,0,0);
+		let StatesCollection[2] = StateRowsCollection;
+		
+		let StateRowsCollection = Array.new(4);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,0,0,1,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,1,0,1,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,2,1,1,0,0);
+		do TetriminoMethods.AddStateRow(StateRowsCollection,3,0,0,0,0);
+		let StatesCollection[3] = StateRowsCollection;
+			  
+	  
+	  return;
+	}
+	
+	/** Deallocates the object's memory. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Draws the Tetrimino on the screen. */
+    method void draw() {
+        do Screen.setColor(true);
+		//do drawLShape();
+    	do drawCurrentState(false);
+		
+		return;
+    }
+	
+	
+	
+
+    /** Erases the Tetrimino from the screen. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+        return;
+    }
+
+    /** Increments the size by 2 pixels. */
+    method void incSize() {
+        if (((y + size) < 254) & ((x + size) < 510)) {
+            do erase();
+            let size = size + 2;
+            do draw();
+        }
+        return;
+    }
+
+    /** Decrements the size by 2 pixels. */
+    method void decSize() {
+        if (size > 2) {
+            do erase();
+            let size = size - 2;
+            do draw();
+        }
+        return;
+	}
+
+    /** Moves up by 2 pixels. */
+    method void moveUp() {
+        if (y > 1) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+            let y = y - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+        }
+        return;
+    }
+	
+	method void drawCurrentState(boolean forceWhite)
+	{
+		var int counter,counter2, currentX, currentY;
+		var Array CurrentState, CurrentRow;
+	
+		let counter = 0;
+		let CurrentState = StatesCollection[currentStateIndex];
+		
+		while (counter < 4)
+		{
+				let CurrentRow = CurrentState[counter];
+				
+				let counter2 = 0;
+				while (counter2 < 4)
+				{
+					if (~(forceWhite))
+					{
+						if (CurrentRow[counter2] = 1)
+						{	
+							do Screen.setColor(true);
+						}
+						else
+						{
+							do Screen.setColor(false);
+						}
+					}
+					else
+					{
+						do Screen.setColor(false);
+					}
+					
+					let currentX = x + (size * counter2);
+					let currentY = y + (size * counter);
+				
+					do Screen.drawRectangle(currentX, currentY, currentX + size, currentY + size);
+		
+				let counter2 = counter2 + 1;
+				}
+				
+				let counter = counter + 1;
+		}
+		
+		do Screen.setColor(true);
+		
+		return;
+	}
+	
+    /** Moves down by 2 pixels. */
+    method void moveDown() {
+        if ((y + tetriminoHeight) < 242) {
+            do drawCurrentState(true);   
+			
+			let y = y + size;
+            do drawCurrentState(false);
+    	
+        }
+        return;
+    }
+
+    /** Moves left by 10 pixels. */
+    method void moveLeft() {
+        if (x > 12) 
+		{
+		do drawCurrentState(true);
+		let x = x - size;
+        do drawCurrentState(false);
+		
+		}
+        return;
+    }
+
+    /** Moves right by 10 pixels. */
+    method void moveRight() {
+        if ((x + tetriminoWidth) < 498) {
+        do drawCurrentState(true);
+		let x = x + size;
+        do drawCurrentState(false);
+		
+        }
+        return;
+    }
+	
+	method int getPosition()
+	{
+		return y + tetriminoHeight;
+	}
+	
+	method void setCurrentState(int state)
+	{
+	let currentStateIndex = state;
+	return;
+	}
+	
+	method void nextState()
+	{
+		let currentStateIndex = currentStateIndex + 1;
+		
+		if (currentStateIndex = numberStates)
+			{
+				let currentStateIndex = 0;
+			}
+		
+		do drawCurrentState(false);
+		
+		return;
+	}
+}

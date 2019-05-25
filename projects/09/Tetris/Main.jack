@@ -1,0 +1,50 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/09/Tetris/Main.jack
+
+/**
+ * The Main class initializes a new Tetris game and starts it.
+ */
+class Main {
+
+    /** Initializes a new game and starts it. */    
+    function void main() {
+	
+	
+	
+        var TetrisGame game;
+		
+        let game = TetrisGame.new();
+		
+		
+       do game.run();
+        do game.dispose();
+
+        return;
+    }
+	
+	function void testTimer()
+	{
+	 var int blahcounter,blahcounter2;	
+	
+	while (blahcounter2 < 5)
+	{
+	 let blahcounter = 0;
+	 while (blahcounter < 18101)
+	 {
+	 let blahcounter = blahcounter + 1;
+	}
+	
+	do Output.printInt(blahcounter2);
+	do Output.println();
+	
+	let blahcounter2 = blahcounter2 + 1;
+	}
+	
+	do Output.printString("done");
+	return;
+
+	}
+	
+}

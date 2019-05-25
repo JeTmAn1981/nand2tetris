@@ -1,0 +1,6 @@
+c:\HackVMTranslator\bin\Debug\HackVMTranslator.exe.config
+c:\HackVMTranslator\obj\Debug\HackVMTranslator.csprojResolveAssemblyReference.cache
+c:\HackVMTranslator\bin\Debug\HackVMTranslator.exe
+c:\HackVMTranslator\bin\Debug\HackVMTranslator.pdb
+c:\HackVMTranslator\obj\Debug\HackVMTranslator.exe
+c:\HackVMTranslator\obj\Debug\HackVMTranslator.pdb

@@ -1,0 +1,18 @@
+class TetriminoMethods
+{
+	function void AddStateRow(Array CurrentArray, int ArrayPosition, int Column0, int Column1, int Column2, int Column3)
+	{
+		var Array Row;
+		let Row = Array.new(4);
+		let Row[0] = Column0;
+		let Row[1] = Column1;
+		let Row[2] = Column2;
+		let Row[3] = Column3;
+		
+		let CurrentArray[ArrayPosition] = Row;
+		//do Row.dispose();
+		return;
+	}
+
+    
+}

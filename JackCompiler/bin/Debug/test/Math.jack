@@ -1,0 +1,50 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A basic math library.
+ */
+class Math {
+
+    /** Initializes the library. */
+    function void init() {
+    
+	return; }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x) {
+    return; }
+
+    /** Returns the product of x and y. */
+    function int multiply(int x, int y) {
+	var int mask, maskCounter;
+	
+	let mask = 1;
+	let maskCounter = 0;
+	
+	while (maskCounter < 16)
+	{
+		let mask = mask + mask;
+		let maskCounter = maskCounter + 1;	
+	}
+    
+	return; }
+
+    /** Returns the integer part of x/y. */
+    function int divide(int x, int y) {
+    return; }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x) {
+    return; }
+
+    /** Returns the greater number. */
+    function int max(int a, int b) {
+    return; }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b) {
+    return; }
+}

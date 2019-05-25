@@ -1,0 +1,215 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+
+/**
+ * Represents a String object. Implements the String type.
+ */
+class String {
+	field Array contents;
+	field int currentLength, maximumLength;
+	
+	
+    /** Constructs a new empty String with a maximum length of maxLength. */
+    constructor String new(int maxLength) {
+	
+		if (maxLength > 0)
+		{
+			let contents = Array.new(maxLength);
+		}
+	
+		let maximumLength = maxLength;
+		let currentLength = 0;
+	
+		return this;
+    }
+
+    /** De-allocates the string and frees its space. */
+    method void dispose() {
+	do Memory.deAlloc(this);
+	
+	return;
+    }
+
+    /** Returns the current length of this String. */
+    method int length() {
+	return currentLength;
+    }
+
+    /** Returns the character at location j. */
+    method char charAt(int j) {
+	if ((j < currentLength) & (j > -1))
+	{
+		return contents[j];
+	}
+	
+	return null;
+    }
+
+    /** Sets the j'th character of this string to be c. */
+    method void setCharAt(int j, char c) {
+	
+	if ((j < currentLength) & (j > -1))
+	{
+	let contents[j] = c;
+	}
+	
+	return;
+    }
+
+    /** Appends the character c to the end of this String.
+     *  Returns this string as the return value. */
+    method String appendChar(char c) {
+	if (currentLength < maximumLength)
+	{
+		let contents[currentLength] = c;
+		let currentLength = currentLength + 1;
+	}
+	
+	return this;
+    }
+
+    /** Erases the last character from this String. */
+    method void eraseLastChar() {
+	if (currentLength > 0)
+	{
+		let contents[currentLength] = null;
+		let currentLength = currentLength - 1;
+	}
+	
+	return;
+    }
+
+    /** Returns the integer value of this String until the first non
+     *  numeric character. */
+    method int intValue() {
+	var int counter, sum;
+	
+	let counter = 0;
+	let sum = 0;
+	
+	while ((counter < currentLength) & (contents[counter] > 47 & contents[counter] < 58))
+	{
+		let sum = sum + contents[counter];
+		let counter = counter + 1;
+	}
+	
+	return sum;
+    }
+
+    /** Sets this String to hold a representation of the given number. */
+    method void setInt(int number) {
+	var String newString;
+	var int counter;
+	var char lastCharacter;
+		
+		if (number < 0)
+		{
+		//	let currentLength = 0;
+			//do appendChar(45);
+			do Output.printString("negative changed to: ");
+			do Output.printInt(-number);
+			do Output.println();
+			do setInt(-number);
+		}
+		else{
+		
+		if (number < 10)
+		{
+		
+	do Output.printString("character added: ");
+	do Output.printInt(number);
+do Output.println();
+	//if (currentLength = 0)
+			//{
+			//let currentLength = 1;
+			//}
+			//else
+			//{
+			let currentLength = 0;
+			//}
+			
+			do appendChar(String.asciiCode(number));
+		
+		}
+		else
+		{
+		 do Output.printString("modded number: ");
+		do Output.printInt(Math.mod(number,10));
+		do Output.println();
+		
+		let lastCharacter = String.asciiCode(Math.mod(number,10));
+		
+		
+	
+			do setInt(number / 10);
+				do Output.printString("character added: ");
+	do Output.printInt(lastCharacter);
+do Output.println();
+			do appendChar(lastCharacter);
+			
+		}
+	
+		}
+	
+		
+	return;
+    }
+	
+	method Array getContents()
+	{
+	return contents;
+	}
+	
+    /** Returns the new line character. */
+    function char newLine() {
+	return 10;
+    }
+
+    /** Returns the backspace character. */
+    function char backSpace() {
+	return 8;
+    }
+
+    /** Returns the double quote (") character. */
+    function char doubleQuote() {
+		return 34;
+    }
+	
+	function int asciiCode(int digit)
+	{
+		return digit + 48;
+	}
+	
+	function int digit(int asciiCode)
+	{
+		return asciiCode - 48;
+	}
+	
+	function String int2String(int n, int length)
+	{
+		var String convertedString;
+		var char lastCharacter;
+		
+		let lastCharacter = String.asciiCode(Math.mod(n,10));
+		
+		if (n < 10)
+		{
+			let convertedString = String.new(length);
+			do convertedString.appendChar(String.asciiCode(n));
+			return convertedString;
+		}
+		else
+		{
+			let convertedString = String.int2String(n / 10, length);
+			do convertedString.appendChar(lastCharacter);
+			return convertedString;
+		}
+	}
+	
+	function int string2Int(String s)
+	{
+		return 0;
+	}
+}

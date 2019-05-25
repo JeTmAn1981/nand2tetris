@@ -1,0 +1,12 @@
+c:\JackCompiler\bin\Debug\JackCompiler.exe.config
+c:\JackCompiler\bin\Debug\JackCompiler.exe
+c:\JackCompiler\bin\Debug\JackCompiler.pdb
+c:\JackCompiler\obj\Debug\JackCompiler.csprojResolveAssemblyReference.cache
+c:\JackCompiler\obj\Debug\JackCompiler.exe
+c:\JackCompiler\obj\Debug\JackCompiler.pdb
+C:\Programming\nand2tetris\JackCompiler\bin\Debug\JackCompiler.exe.config
+C:\Programming\nand2tetris\JackCompiler\bin\Debug\JackCompiler.exe
+C:\Programming\nand2tetris\JackCompiler\bin\Debug\JackCompiler.pdb
+C:\Programming\nand2tetris\JackCompiler\obj\Debug\JackCompiler.csprojResolveAssemblyReference.cache
+C:\Programming\nand2tetris\JackCompiler\obj\Debug\JackCompiler.exe
+C:\Programming\nand2tetris\JackCompiler\obj\Debug\JackCompiler.pdb
